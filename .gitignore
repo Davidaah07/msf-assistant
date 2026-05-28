@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.env
+.venv
+venv/
+env/
+
+# Payloads generados (nunca subir al repo)
+/tmp/payload_*
+*.exe
+*.bin
+*.elf
+*.war
+*.aspx
+*.ps1
+*.rc
+
+# Logs y temporales
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# Flask
+instance/
+.webassets-cache
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
