@@ -51,8 +51,8 @@ Desarrollada como proyecto final del **Master en Ciberseguridad de Evolve**.
 | Tomcat Manager Upload | CVE-2009-3843 | Java (Tomcat) | Excellent |
 | Shellshock CGI | CVE-2014-6271 | Linux (Apache) | Excellent |
 | Heartbleed | CVE-2014-0160 | SSL/TLS | Great |
-| SSH Login Bruteforce | — | Universal | Good |
-| MySQL Login Scanner | — | Linux/Windows | Good |
+| SSH Login (credenciales) | — | Universal | Excellent |
+| MySQL Login (credenciales) | — | Linux/Windows | Excellent |
 | Multi/Handler Listener | — | Universal | Excellent |
 
 ---
@@ -69,6 +69,22 @@ Desarrollada como proyecto final del **Master en Ciberseguridad de Evolve**.
 - PowerShell PS1
 
 Soporte para encoders: `shikata_ga_nai`, `xor_dynamic`, `php/base64`, `unicode_mixed`.
+
+---
+
+## 🔑 Diccionario de credenciales por defecto
+
+Los módulos de login (SSH y MySQL) incluyen un diccionario integrado con las credenciales por defecto de las máquinas vulnerables más comunes en entornos de laboratorio. La herramienta las prueba automáticamente y abre una sesión al primer acierto:
+
+| Servicio | Credenciales probadas | Máquina típica |
+|----------|----------------------|----------------|
+| SSH | `vagrant:vagrant` | Metasploitable 3 |
+| SSH | `msfadmin:msfadmin` | Metasploitable 2 |
+| SSH | `root:toor`, `user:user`, `admin:admin` | Genéricas |
+| MySQL | `root:(vacío)` | Metasploitable 2 |
+| MySQL | `root:sploitable` | Metasploitable 3 |
+
+Esto permite que la herramienta funcione **out-of-the-box** contra las máquinas vulnerables más usadas, sin configuración manual.
 
 ---
 
