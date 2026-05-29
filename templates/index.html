@@ -513,6 +513,7 @@ function renderConfig(){
   const opts={...e.opts};
   if('RHOSTS'in opts)opts.RHOSTS=targetIP||'TARGET_IP';
   if('LHOST'in opts)opts.LHOST=document.getElementById('cfg-lhost').value;
+  if('USERPASS_FILE'in opts&&String(opts.USERPASS_FILE).startsWith('AUTO'))opts.USERPASS_FILE='(diccionario auto-generado)';
   document.getElementById('cfg-opts').innerHTML=Object.entries(opts).map(([k,v])=>`<div class="opt-row"><div class="ok2">${k}</div><div class="ov">${v||'—'}</div></div>`).join('');
   if('RHOSTS'in e.opts)document.getElementById('cfg-rhosts').value=targetIP;
   if('RPORT'in e.opts)document.getElementById('cfg-rport').value=e.opts.RPORT;
@@ -525,14 +526,18 @@ function prepLaunch(){
   const lh=document.getElementById('cfg-lhost').value;
   const lp=document.getElementById('cfg-lport').value;
   const rp=document.getElementById('cfg-rport').value||e.opts.RPORT||'';
+  const labels={RHOSTS:'Target IP',LHOST:'Tu IP Kali',LPORT:'Puerto escucha',RPORT:'Puerto objetivo',TARGETURI:'Ruta objetivo',USERPASS_FILE:'Diccionario de credenciales',STOP_ON_SUCCESS:'Parar al primer acierto',BLANK_PASSWORDS:'Probar passwords vacios',VERBOSE:'Modo verbose',AutoCheck:'Comprobacion automatica',ForceExploit:'Forzar explotacion',HttpUsername:'Usuario HTTP',HttpPassword:'Password HTTP'};
   const steps=[];
   steps.push({t:'Cargar modulo',c:`use ${e.name}`});
-  if('RHOSTS'in e.opts)steps.push({t:'Target IP',c:`set RHOSTS ${rh}`});
-  if('RPORT'in e.opts)steps.push({t:'Puerto objetivo',c:`set RPORT ${rp}`});
-  if('LHOST'in e.opts)steps.push({t:'Tu IP Kali',c:`set LHOST ${lh}`});
-  if('LPORT'in e.opts)steps.push({t:'Puerto escucha',c:`set LPORT ${lp}`});
-  if('TARGETURI'in e.opts)steps.push({t:'URI objetivo',c:`set TARGETURI ${e.opts.TARGETURI}`});
-  if('HTTPUSERNAME'in e.opts)steps.push({t:'Credenciales',c:`set HTTPUSERNAME ${e.opts.HTTPUSERNAME}`});
+  for(const [k,v] of Object.entries(e.opts)){
+    let val=v;
+    if(k==='RHOSTS')val=rh;
+    else if(k==='LHOST')val=lh;
+    else if(k==='LPORT')val=lp;
+    else if(k==='RPORT')val=rp;
+    else if(k==='USERPASS_FILE'&&v.startsWith('AUTO'))val='(diccionario auto-generado)';
+    steps.push({t:labels[k]||k,c:`set ${k} ${val}`});
+  }
   if(e.payload&&!e.payload.startsWith('('))steps.push({t:'Payload',c:`set payload ${e.payload}`});
   steps.push({t:'Revisar opciones',c:'show options'});
   steps.push({t:'Ejecutar',c:'run'});
