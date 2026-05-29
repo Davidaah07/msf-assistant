@@ -21,7 +21,7 @@
 
 MSF-Assistant es una aplicación web Flask que actúa como capa de orquestación sobre Metasploit Framework. En lugar de escribir comandos manualmente en msfconsole, la herramienta guía al usuario por las fases de un pentest con una interfaz visual moderna, generando y ejecutando los comandos reales en el sistema.
 
-Desarrollada como proyecto de portfolio para el aprendizaje de ciberseguridad ofensiva en entornos controlados.
+Desarrollada como proyecto final del **Master en Ciberseguridad de Evolve**.
 
 ---
 
@@ -75,7 +75,7 @@ Soporte para encoders: `shikata_ga_nai`, `xor_dynamic`, `php/base64`, `unicode_m
 ## 🏗️ Arquitectura
 
 ```
-msf-assistant/
+Proyecto-Master-Ciberseguridad-Evolve-DavidAah07/
 ├── app.py                  # Backend Flask — rutas, APIs, ejecución de comandos
 ├── templates/
 │   └── index.html          # Frontend SPA — interfaz completa en un solo archivo
@@ -84,9 +84,9 @@ msf-assistant/
 ```
 
 **Stack técnico:**
-- **Backend:** Python 3 + Flask, subprocess para ejecución de comandos, Server-Sent Events para streaming de output
-- **Frontend:** HTML/CSS/JS vanilla, sin frameworks — interfaz hacker-themed con tema oscuro
-- **Integración:** Metasploit Framework (msfconsole, msfvenom), nmap, netdiscover
+- **Backend:** Python 3 + Flask, subprocess para ejecución de comandos, Server-Sent Events para streaming de output en tiempo real
+- **Frontend:** HTML/CSS/JS vanilla, sin frameworks externos — interfaz hacker-themed con tema oscuro
+- **Integración:** Metasploit Framework (`msfconsole`, `msfvenom`), nmap, netdiscover
 
 ---
 
@@ -101,16 +101,16 @@ msf-assistant/
 ### Instalación rápida
 
 ```bash
-git clone https://github.com/Davidaah07/msf-assistant.git
-cd msf-assistant
+git clone https://github.com/Davidaah07/Proyecto-Master-Ciberseguridad-Evolve-DavidAah07.git
+cd Proyecto-Master-Ciberseguridad-Evolve-DavidAah07
 sudo bash instalar.sh
 ```
 
 ### Instalación manual
 
 ```bash
-git clone https://github.com/Davidaah07/msf-assistant.git
-cd msf-assistant
+git clone https://github.com/Davidaah07/Proyecto-Master-Ciberseguridad-Evolve-DavidAah07.git
+cd Proyecto-Master-Ciberseguridad-Evolve-DavidAah07
 sudo pip3 install flask --break-system-packages
 sudo python3 app.py
 ```
@@ -159,7 +159,7 @@ Abre el navegador en: **http://localhost:5000**
 
 ## 📸 Capturas
 
-> *Añadir capturas de pantalla de la herramienta en uso*
+> *Capturas de la herramienta en uso próximamente*
 
 ---
 
@@ -167,12 +167,9 @@ Abre el navegador en: **http://localhost:5000**
 
 Este proyecto ha sido desarrollado con **fines exclusivamente educativos** para el aprendizaje de ciberseguridad ofensiva en entornos controlados.
 
-**Está terminantemente prohibido** utilizar esta herramienta contra sistemas sin autorización explícita del propietario. El uso indebido puede constituir un delito según la legislación vigente en España y en la mayoría de países.
+**Está terminantemente prohibido** utilizar esta herramienta contra sistemas sin autorización explícita del propietario. El uso indebido puede constituir un delito según la legislación vigente.
 
-El autor no se hace responsable del uso indebido de este software. Úsalo únicamente en:
-- Tus propias máquinas virtuales
-- Entornos de laboratorio como Metasploitable, HackTheBox, TryHackMe
-- Sistemas para los que tienes autorización escrita
+Úsalo únicamente en tus propias máquinas virtuales, entornos de laboratorio (Metasploitable, HackTheBox, TryHackMe) o sistemas para los que tienes autorización escrita.
 
 ---
 
@@ -183,5 +180,7 @@ MIT License — ver [LICENSE](LICENSE) para más detalles.
 ---
 
 <div align="center">
-Desarrollado para aprendizaje de ciberseguridad | Kali Linux + Metasploit Framework
+
+Proyecto académico desarrollado durante el **Master en Ciberseguridad de [Evolve](https://evolve.es)**.
+
 </div>
